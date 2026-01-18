@@ -41,6 +41,13 @@
         .item { padding: 10px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; cursor: pointer; }
         .item:hover { background: #f9f9f9; }
         .theme-toggle { margin-left: 20px; }
+        .search-container { padding: 10px 15px; background: white; border-bottom: 1px solid #ddd; display: flex; gap: 10px; }
+        #searchInput { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        #searchBtn { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #searchBtn:hover { background: #5568d3; }
+        .search-results { position: absolute; top: 60px; left: 15px; background: white; border: 1px solid #ddd; border-radius: 5px; max-width: 300px; max-height: 200px; overflow-y: auto; z-index: 500; display: none; }
+        .search-result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .search-result-item:hover { background: #f5f5f5; }
     </style>
 </head>
 <body>
@@ -90,6 +97,11 @@
         </div>
 
         <div class="main">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for a location (e.g., New York, Times Square)...">
+                <button id="searchBtn" onclick="searchLocation()">Search</button>
+                <div class="search-results" id="searchResults"></div>
+            </div>
             <div id="map" style="position: relative;"></div>
         </div>
     </div>
@@ -138,6 +150,7 @@
         let selectedLat = null;
         let selectedLng = null;
         let selectedItemId = null;
+        let searchTimeout;
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize map
@@ -164,7 +177,107 @@
                     fillOpacity: 0.7
                 }).addTo(map);
             });
+
+            // Search input listener
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchLocation();
+                }
+            });
+
+            // Real-time search suggestions
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                if (e.target.value.length > 2) {
+                    searchTimeout = setTimeout(() => fetchSearchSuggestions(e.target.value), 300);
+                } else {
+                    document.getElementById('searchResults').style.display = 'none';
+                }
+            });
         });
+
+        function fetchSearchSuggestions(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '';
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
+                .then(r => r.json())
+                .then(results => {
+                    if (results.length === 0) {
+                        resultsDiv.innerHTML = '<div class="search-result-item">No results found</div>';
+                    } else {
+                        resultsDiv.innerHTML = results.map(result => 
+                            `<div class="search-result-item" onclick="selectSearchResult(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">${result.display_name}</div>`
+                        ).join('');
+                    }
+                    resultsDiv.style.display = 'block';
+                })
+                .catch(e => console.error('Search error:', e));
+        }
+
+        function searchLocation() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('Please enter a location to search');
+                return;
+            }
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+                .then(r => r.json())
+                .then(results => {
+                    if (results.length === 0) {
+                        alert('Location not found. Please try a different search.');
+                        return;
+                    }
+
+                    const result = results[0];
+                    const lat = parseFloat(result.lat);
+                    const lon = parseFloat(result.lon);
+
+                    // Pan and zoom to location
+                    map.setView([lat, lon], 15);
+
+                    // Add a temporary marker at the search location
+                    if (window.searchMarker) map.removeLayer(window.searchMarker);
+                    window.searchMarker = L.circleMarker([lat, lon], {
+                        color: '#ff6b6b',
+                        radius: 10,
+                        fillOpacity: 0.8,
+                        weight: 2
+                    }).addTo(map);
+
+                    window.searchMarker.bindPopup(`<strong>Search Result</strong><br>${result.display_name}`).openPopup();
+
+                    // Hide search results
+                    document.getElementById('searchResults').style.display = 'none';
+                })
+                .catch(e => {
+                    console.error('Error:', e);
+                    alert('Error searching for location. Please try again.');
+                });
+        }
+
+        function selectSearchResult(lat, lon, name) {
+            // Pan and zoom to location
+            map.setView([lat, lon], 15);
+
+            // Add a temporary marker at the selected location
+            if (window.searchMarker) map.removeLayer(window.searchMarker);
+            window.searchMarker = L.circleMarker([lat, lon], {
+                color: '#ff6b6b',
+                radius: 10,
+                fillOpacity: 0.8,
+                weight: 2
+            }).addTo(map);
+
+            window.searchMarker.bindPopup(`<strong>${name}</strong>`).openPopup();
+
+            // Update search input
+            document.getElementById('searchInput').value = name;
+
+            // Hide search results
+            document.getElementById('searchResults').style.display = 'none';
+        }
 
         function loadLostItems() {
             fetch('{{ route("lost-items.index") }}')
