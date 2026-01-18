@@ -13,39 +13,45 @@ class FoundReportController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
-            'lost_item_id' => 'required|exists:lost_items,id',
-            'message' => 'required|string|max:500',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            $validated = $request->validate([
+                'lost_item_id' => 'required|exists:lost_items,id',
+                'message' => 'required|string|max:500',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('found-reports', 'public');
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('found-reports', 'public');
+            }
+
+            $lostItem = LostItem::find($validated['lost_item_id']);
+            
+            $foundReport = FoundReport::create([
+                'lost_item_id' => $validated['lost_item_id'],
+                'reporter_id' => Auth::id(),
+                'message' => $validated['message'],
+                'image_path' => $imagePath,
+                'status' => 'pending',
+            ]);
+
+            // Create notification for the item owner
+            Notification::create([
+                'user_id' => $lostItem->user_id,
+                'found_report_id' => $foundReport->id,
+                'type' => 'found_report',
+                'title' => 'Found Item Report',
+                'message' => Auth::user()->name . ' reported finding your lost item!',
+                'image_path' => $imagePath,
+                'is_read' => false,
+            ]);
+
+            return response()->json($foundReport, 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'messages' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error submitting report: ' . $e->getMessage()], 500);
         }
-
-        $lostItem = LostItem::find($request->lost_item_id);
-        
-        $foundReport = FoundReport::create([
-            'lost_item_id' => $request->lost_item_id,
-            'reporter_id' => Auth::id(),
-            'message' => $request->message,
-            'image_path' => $imagePath,
-            'status' => 'pending',
-        ]);
-
-        // Create notification for the item owner
-        Notification::create([
-            'user_id' => $lostItem->user_id,
-            'found_report_id' => $foundReport->id,
-            'type' => 'found_report',
-            'title' => 'Found Item Report',
-            'message' => Auth::user()->name . ' reported finding your lost item!',
-            'image_path' => $imagePath,
-            'is_read' => false,
-        ]);
-
-        return response()->json($foundReport, 201);
     }
 
     public function accept($id)

@@ -460,6 +460,19 @@
 
         // Refresh notification badge every 10 seconds
         setInterval(updateNotificationBadge, 10000);
+
+        // Refresh lost items map every 30 seconds to show updates
+        setInterval(function() {
+            console.log('Refreshing lost items...');
+            // Remove all markers from map
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.CircleMarker && layer !== window.currentMarker && layer !== window.searchMarker) {
+                    map.removeLayer(layer);
+                }
+            });
+            // Reload items
+            loadLostItems();
+        }, 30000);
     </script>
 </body>
 </html>
