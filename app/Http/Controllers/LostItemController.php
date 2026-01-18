@@ -17,6 +17,12 @@ class LostItemController extends Controller
         return response()->json($lostItems);
     }
 
+    public function myItems()
+    {
+        $lostItems = LostItem::where('user_id', Auth::id())->get();
+        return response()->json($lostItems);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

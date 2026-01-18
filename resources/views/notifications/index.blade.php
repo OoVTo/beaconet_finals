@@ -51,18 +51,60 @@
                     }
                     
                     container.innerHTML = notifications.map(n => `
-                        <div class="notification ${!n.is_read ? 'unread' : ''}">
+                        <div class="notification ${!n.is_read ? 'unread' : ''}" id="notification-${n.id}">
                             <h3>${n.title}</h3>
                             <p>${n.message}</p>
                             ${n.image_path ? `<img src="/storage/${n.image_path}" alt="">` : ''}
                             <small>${new Date(n.created_at).toLocaleString()}</small>
                             <div style="margin-top: 10px;">
-                                ${!n.is_read ? `<form method="POST" action="/notifications/${n.id}/read" style="display: inline;"><button type="submit" class="btn" style="background: #4CAF50;">Mark as Read</button></form>` : ''}
-                                <form method="POST" action="/notifications/${n.id}" style="display: inline;"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="btn" style="background: #d32f2f;">Delete</button></form>
+                                ${!n.is_read ? `<button class="btn" style="background: #4CAF50; margin-right: 10px;" onclick="markAsRead(${n.id})">Mark as Read</button>` : ''}
+                                <button class="btn" style="background: #d32f2f;" onclick="deleteNotification(${n.id})">Delete</button>
                             </div>
                         </div>
                     `).join('');
+                })
+                .catch(e => console.error('Error loading notifications:', e));
+        }
+
+        function markAsRead(id) {
+            fetch('{{ route("notifications.read", ":id") }}'.replace(':id', id), {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                const notifElement = document.getElementById('notification-' + id);
+                if (notifElement) {
+                    notifElement.classList.remove('unread');
+                }
+                loadNotifications();
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                alert('Error marking notification as read');
+            });
+        }
+
+        function deleteNotification(id) {
+            if (confirm('Delete this notification?')) {
+                fetch('{{ route("notifications.delete", ":id") }}'.replace(':id', id), {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error('Failed to delete');
+                    loadNotifications();
+                })
+                .catch(e => {
+                    console.error('Error:', e);
+                    alert('Error deleting notification');
                 });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', loadNotifications);

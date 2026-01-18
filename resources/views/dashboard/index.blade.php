@@ -280,6 +280,7 @@
         }
 
         function loadLostItems() {
+            // Load all items for map
             fetch('{{ route("lost-items.index") }}')
                 .then(r => r.json())
                 .then(items => {
@@ -297,17 +298,23 @@
 
                         marker.bindPopup(item.title);
                     });
+                })
+                .catch(e => console.error('Error loading items:', e));
 
-                    // Load user's items
-                    fetch('{{ route("lost-items.index") }}')
-                        .then(r => r.json())
-                        .then(items => {
-                            const container = document.getElementById('yourItems');
-                            container.innerHTML = items.map(item => 
-                                `<div class="item">${item.title} - ${item.status}</div>`
-                            ).join('');
-                        });
-                });
+            // Load only user's items for sidebar
+            fetch('{{ route("lost-items.myItems") }}')
+                .then(r => r.json())
+                .then(items => {
+                    const container = document.getElementById('yourItems');
+                    if (items.length === 0) {
+                        container.innerHTML = '<p style="color: #999; font-size: 14px;">No items posted yet</p>';
+                    } else {
+                        container.innerHTML = items.map(item => 
+                            `<div class="item">${item.title} - <span style="color: ${item.status === 'lost' ? '#ff6b6b' : '#51cf66'}">${item.status}</span></div>`
+                        ).join('');
+                    }
+                })
+                .catch(e => console.error('Error loading your items:', e));
         }
 
         function postLostItem() {
