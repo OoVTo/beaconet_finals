@@ -66,7 +66,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/found-reports/{id}/reject', [FoundReportController::class, 'reject'])->name('found-reports.reject');
 
     // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications', function () {
+        return view('notifications.index');
+    })->name('notifications.index');
+    Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.api.index');
     Route::get('/notifications/unread', [NotificationController::class, 'getUnread'])->name('notifications.unread');
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::patch('/notifications/mark-all/read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');

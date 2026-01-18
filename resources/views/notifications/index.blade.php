@@ -91,7 +91,7 @@
         let currentLostItemId = null;
 
         function loadNotifications() {
-            fetch('{{ route("notifications.index") }}')
+            fetch('/api/notifications')
                 .then(r => r.json())
                 .then(notifications => {
                     const container = document.getElementById('inboxList');
@@ -119,7 +119,7 @@
             currentFoundReportId = foundReportId;
             currentLostItemId = lostItemId;
 
-            fetch('{{ route("notifications.index") }}')
+            fetch('/api/notifications')
                 .then(r => r.json())
                 .then(notifications => {
                     const notif = notifications.find(n => n.id == notificationId);
