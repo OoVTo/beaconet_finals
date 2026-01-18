@@ -10,14 +10,21 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = Auth::user()->notifications()->orderBy('created_at', 'desc')->get();
+        $notifications = Auth::user()->notifications()
+            ->with(['foundReport.reporter', 'foundReport.lostItem'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json($notifications);
     }
 
     public function getUnread()
     {
         $unreadCount = Auth::user()->notifications()->where('is_read', false)->count();
-        $notifications = Auth::user()->notifications()->where('is_read', false)->orderBy('created_at', 'desc')->get();
+        $notifications = Auth::user()->notifications()
+            ->with(['foundReport.reporter', 'foundReport.lostItem'])
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json(['count' => $unreadCount, 'notifications' => $notifications]);
     }
 

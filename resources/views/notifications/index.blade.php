@@ -58,7 +58,7 @@
             <button class="btn" onclick="markAllAsRead()" style="width: auto;">Mark All as Read</button>
         </div>
 
-        <div class="inbox-list" id="inboxList"></div>
+        <div class="inbox-list" id="inboxList"><div class="empty-message">Loading...</div></div>
     </div>
 
     <!-- Notification Detail Modal -->
@@ -94,24 +94,34 @@
             fetch('/api/notifications')
                 .then(r => r.json())
                 .then(notifications => {
+                    console.log('Notifications loaded:', notifications);
                     const container = document.getElementById('inboxList');
                     if (notifications.length === 0) {
                         container.innerHTML = '<div class="empty-message">No notifications</div>';
                         return;
                     }
                     
-                    container.innerHTML = notifications.map(n => `
-                        <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, '${n.found_report.lost_item_id}', '${n.is_read}')">
-                            <div class="inbox-item-content">
-                                <div class="inbox-item-sender">${n.found_report.reporter.name} found your item</div>
-                                <div class="inbox-item-preview">${n.found_report.message.substring(0, 60)}...</div>
-                                <div class="inbox-item-date">${new Date(n.created_at).toLocaleDateString()}</div>
+                    container.innerHTML = notifications.map(n => {
+                        if (!n.found_report || !n.found_report.reporter) {
+                            console.error('Invalid notification structure:', n);
+                            return '';
+                        }
+                        return `
+                            <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, '${n.found_report.lost_item_id}', '${n.is_read}')">
+                                <div class="inbox-item-content">
+                                    <div class="inbox-item-sender">${n.found_report.reporter.name} found your item</div>
+                                    <div class="inbox-item-preview">${n.found_report.message.substring(0, 60)}...</div>
+                                    <div class="inbox-item-date">${new Date(n.created_at).toLocaleDateString()}</div>
+                                </div>
+                                ${!n.is_read ? '<div class="inbox-item-badge">NEW</div>' : ''}
                             </div>
-                            ${!n.is_read ? '<div class="inbox-item-badge">NEW</div>' : ''}
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 })
-                .catch(e => console.error('Error loading notifications:', e));
+                .catch(e => {
+                    console.error('Error loading notifications:', e);
+                    document.getElementById('inboxList').innerHTML = '<div class="empty-message">Error loading notifications</div>';
+                });
         }
 
         function openNotification(notificationId, foundReportId, lostItemId, isRead) {
@@ -235,7 +245,18 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadNotifications);
+        // Load notifications when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, fetching notifications...');
+            loadNotifications();
+        });
+
+        // Also try loading immediately in case DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadNotifications);
+        } else {
+            loadNotifications();
+        }
     </script>
 </body>
 </html>
