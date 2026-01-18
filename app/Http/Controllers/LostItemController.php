@@ -80,13 +80,32 @@ class LostItemController extends Controller
     public function update($id, Request $request)
     {
         $lostItem = LostItem::find($id);
-        if (!$lostItem || $lostItem->user_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        
+        \Log::info('Update Lost Item Request', [
+            'id' => $id,
+            'auth_id' => Auth::id(),
+            'item_exists' => !!$lostItem,
+            'item_user_id' => $lostItem?->user_id,
+            'status' => $request->status ?? null
+        ]);
+        
+        if (!$lostItem) {
+            return response()->json(['error' => 'Item not found'], 404);
+        }
+        
+        if ($lostItem->user_id !== Auth::id()) {
+            \Log::warning('Unauthorized update attempt', [
+                'item_id' => $id,
+                'item_user_id' => $lostItem->user_id,
+                'auth_id' => Auth::id()
+            ]);
+            return response()->json(['error' => 'You do not own this item'], 403);
         }
 
         if ($request->has('status')) {
             $lostItem->status = $request->status;
             $lostItem->save();
+            \Log::info('Item status updated', ['id' => $id, 'new_status' => $request->status]);
         }
 
         return response()->json($lostItem);

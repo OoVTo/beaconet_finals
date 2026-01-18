@@ -182,6 +182,8 @@
         function markItemReceived() {
             if (!currentLostItemId) return;
 
+            console.log('Marking item as received:', currentLostItemId);
+
             fetch(`/lost-items/${currentLostItemId}`, {
                 method: 'PATCH',
                 headers: {
@@ -191,17 +193,29 @@
                 body: JSON.stringify({ status: 'received' })
             })
             .then(r => {
-                if (!r.ok) throw new Error('Failed to update item');
+                console.log('Response status:', r.status);
+                if (!r.ok) {
+                    return r.json().then(err => {
+                        throw new Error(err.error || `Server error ${r.status}`);
+                    }).catch(e => {
+                        throw new Error(`Failed to update item (${r.status})`);
+                    });
+                }
                 return r.json();
             })
             .then(data => {
+                console.log('Item updated:', data);
                 alert('Item marked as received! It has been removed from the map.');
                 deleteCurrentNotification();
                 closeDetail();
                 loadNotifications();
+                // Redirect back to dashboard after a short delay
+                setTimeout(() => {
+                    window.location.href = '{{ route("dashboard") }}';
+                }, 1500);
             })
             .catch(e => {
-                console.error('Error:', e);
+                console.error('Error details:', e);
                 alert('Error marking item as received: ' + e.message);
             });
         }
