@@ -316,8 +316,14 @@
                 return;
             }
 
+            const title = document.getElementById('title').value.trim();
+            if (!title) {
+                alert('Please enter an item title');
+                return;
+            }
+
             const formData = new FormData();
-            formData.append('title', document.getElementById('title').value);
+            formData.append('title', title);
             formData.append('description', document.getElementById('description').value);
             formData.append('latitude', selectedLat);
             formData.append('longitude', selectedLng);
@@ -333,7 +339,14 @@
                 },
                 body: formData
             })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    return r.text().then(text => {
+                        throw new Error(`Server error (${r.status}): ${text}`);
+                    });
+                }
+                return r.json();
+            })
             .then(data => {
                 alert('Item posted successfully!');
                 document.getElementById('title').value = '';
@@ -342,9 +355,13 @@
                 document.getElementById('location').value = '';
                 selectedLat = null;
                 selectedLng = null;
+                if (window.currentMarker) map.removeLayer(window.currentMarker);
                 location.reload();
             })
-            .catch(e => alert('Error: ' + e.message));
+            .catch(e => {
+                console.error('Error details:', e);
+                alert('Error posting item: ' + e.message);
+            });
         }
 
         function openItemModal(item) {
@@ -378,13 +395,25 @@
                 },
                 body: formData
             })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    return r.text().then(text => {
+                        throw new Error(`Server error (${r.status}): ${text}`);
+                    });
+                }
+                return r.json();
+            })
             .then(data => {
                 alert('Report submitted successfully!');
+                document.getElementById('foundMessage').value = '';
+                document.getElementById('foundImage').value = '';
                 closeModal('foundModal');
                 location.reload();
             })
-            .catch(e => alert('Error: ' + e.message));
+            .catch(e => {
+                console.error('Error details:', e);
+                alert('Error submitting report: ' + e.message);
+            });
         }
 
         function closeModal(modalId) {
