@@ -102,12 +102,12 @@
                     }
                     
                     container.innerHTML = notifications.map(n => {
-                        if (!n.found_report || !n.found_report.reporter) {
+                        if (!n.found_report || !n.found_report.reporter || !n.found_report.lost_item) {
                             console.error('Invalid notification structure:', n);
                             return '';
                         }
                         return `
-                            <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, '${n.found_report.lost_item_id}', '${n.is_read}')">
+                            <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, ${n.found_report.lost_item.id}, '${n.is_read}')">
                                 <div class="inbox-item-content">
                                     <div class="inbox-item-sender">${n.found_report.reporter.name} found your item</div>
                                     <div class="inbox-item-preview">${n.found_report.message.substring(0, 60)}...</div>
