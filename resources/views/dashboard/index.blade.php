@@ -48,6 +48,9 @@
         .search-results { position: absolute; top: 60px; left: 15px; background: white; border: 1px solid #ddd; border-radius: 5px; max-width: 300px; max-height: 200px; overflow-y: auto; z-index: 500; display: none; }
         .search-result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
         .search-result-item:hover { background: #f5f5f5; }
+        .notification-badge { position: relative; display: inline-block; }
+        .notification-badge .badge { position: absolute; top: -8px; right: -8px; background: #d32f2f; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; display: none; }
+        .notification-badge .badge.active { display: flex; }
     </style>
 </head>
 <body>
@@ -55,7 +58,10 @@
         <h2>BEACONET-mini</h2>
         <div class="nav-links">
             <span>Welcome, {{ auth()->user()->name }}</span>
-            <a href="{{ route('notifications.index') }}">Notifications</a>
+            <div class="notification-badge">
+                <a href="{{ route('notifications.index') }}">Notifications</a>
+                <span class="badge" id="notificationBadge"></span>
+            </div>
             <a href="{{ route('settings.index') }}">Settings</a>
             @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}" style="background: #ff9800; padding: 5px 15px; border-radius: 5px;">Admin Panel</a>
@@ -162,6 +168,9 @@
 
             // Load lost items
             loadLostItems();
+
+            // Load notification badge
+            updateNotificationBadge();
 
             // Right-click to set location
             map.on('contextmenu', function(e) {
@@ -433,6 +442,24 @@
                 modal.classList.remove('active');
             }
         }
+
+        function updateNotificationBadge() {
+            fetch('{{ route("notifications.unread") }}')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.add('active');
+                    } else {
+                        badge.classList.remove('active');
+                    }
+                })
+                .catch(e => console.error('Error loading unread count:', e));
+        }
+
+        // Refresh notification badge every 10 seconds
+        setInterval(updateNotificationBadge, 10000);
     </script>
 </body>
 </html>

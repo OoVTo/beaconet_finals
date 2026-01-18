@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-items', [LostItemController::class, 'myItems'])->name('lost-items.myItems');
     Route::post('/lost-items', [LostItemController::class, 'store'])->name('lost-items.store');
     Route::get('/lost-items/{id}', [LostItemController::class, 'show'])->name('lost-items.show');
+    Route::patch('/lost-items/{id}', [LostItemController::class, 'update'])->name('lost-items.update');
     Route::delete('/lost-items/{id}', [LostItemController::class, 'destroy'])->name('lost-items.destroy');
 
     // Found Reports

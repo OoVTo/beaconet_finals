@@ -76,4 +76,19 @@ class LostItemController extends Controller
         $lostItem->delete();
         return response()->json(['message' => 'Deleted']);
     }
+
+    public function update($id, Request $request)
+    {
+        $lostItem = LostItem::find($id);
+        if (!$lostItem || $lostItem->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($request->has('status')) {
+            $lostItem->status = $request->status;
+            $lostItem->save();
+        }
+
+        return response()->json($lostItem);
+    }
 }
