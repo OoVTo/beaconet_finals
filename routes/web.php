@@ -7,6 +7,7 @@ use App\Http\Controllers\FoundReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MessageController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -88,6 +89,12 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications');
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+
+    // Messages
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{conversationId}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{conversationId}', [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/found-reports/{foundReportId}/message', [MessageController::class, 'startFromFoundReport'])->name('messages.startFromFoundReport');
 });
 
 // Admin Routes

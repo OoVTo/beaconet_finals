@@ -104,6 +104,7 @@
             <div class="detail-message" id="detailMessage"></div>
 
             <div class="detail-actions">
+                <button class="btn" id="messageBtn" onclick="openMessaging()" style="background: #3b82f6;"><i class="fas fa-comments"></i> Message</button>
                 <button class="btn btn-success" id="markReceivedBtn" onclick="markItemReceived()"><i class="fas fa-check"></i> I Received This Item</button>
                 <button class="btn btn-danger" onclick="deleteCurrentNotification()"><i class="fas fa-trash"></i> Delete</button>
             </div>
@@ -200,6 +201,16 @@
             currentNotificationId = null;
             currentFoundReportId = null;
             currentLostItemId = null;
+        }
+
+        function openMessaging() {
+            if (!currentFoundReportId) {
+                alert('Unable to open messaging. Please try again.');
+                return;
+            }
+
+            // Redirect to messaging for this found report
+            window.location.href = `/found-reports/${currentFoundReportId}/message`;
         }
 
         function markAsRead(id) {
