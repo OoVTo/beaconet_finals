@@ -139,20 +139,37 @@
                     }
                     
                     container.innerHTML = notifications.map(n => {
-                        if (!n.found_report || !n.found_report.reporter || !n.found_report.lost_item) {
+                        // Handle found report notifications
+                        if (n.type === 'found_report' && n.found_report && n.found_report.reporter && n.found_report.lost_item) {
+                            return `
+                                <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, ${n.found_report.lost_item.id}, '${n.is_read}')">
+                                    <div class="inbox-item-content">
+                                        <div class="inbox-item-sender">${n.found_report.reporter.name} found your item</div>
+                                        <div class="inbox-item-preview">${n.found_report.message.substring(0, 60)}...</div>
+                                        <div class="inbox-item-date">${new Date(n.created_at).toLocaleDateString()}</div>
+                                    </div>
+                                    ${!n.is_read ? '<div class="inbox-item-badge">NEW</div>' : ''}
+                                </div>
+                            `;
+                        }
+                        // Handle message notifications
+                        else if (n.type === 'new_message' && n.conversation && n.conversation.owner && n.conversation.finder) {
+                            const otherUser = n.conversation.owner_id === {{ auth()->id() }} ? n.conversation.finder : n.conversation.owner;
+                            return `
+                                <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openMessageNotification(${n.id}, ${n.conversation_id})">
+                                    <div class="inbox-item-content">
+                                        <div class="inbox-item-sender"><i class="fas fa-envelope"></i> ${otherUser.name} sent a message</div>
+                                        <div class="inbox-item-preview">${n.message || 'Message'}</div>
+                                        <div class="inbox-item-date">${new Date(n.created_at).toLocaleDateString()}</div>
+                                    </div>
+                                    ${!n.is_read ? '<div class="inbox-item-badge">NEW</div>' : ''}
+                                </div>
+                            `;
+                        }
+                        else {
                             console.error('Invalid notification structure:', n);
                             return '';
                         }
-                        return `
-                            <div class="inbox-item ${!n.is_read ? 'unread' : ''}" onclick="openNotification(${n.id}, ${n.found_report_id}, ${n.found_report.lost_item.id}, '${n.is_read}')">
-                                <div class="inbox-item-content">
-                                    <div class="inbox-item-sender">${n.found_report.reporter.name} found your item</div>
-                                    <div class="inbox-item-preview">${n.found_report.message.substring(0, 60)}...</div>
-                                    <div class="inbox-item-date">${new Date(n.created_at).toLocaleDateString()}</div>
-                                </div>
-                                ${!n.is_read ? '<div class="inbox-item-badge">NEW</div>' : ''}
-                            </div>
-                        `;
                     }).join('');
                 })
                 .catch(e => {
@@ -201,6 +218,15 @@
             currentNotificationId = null;
             currentFoundReportId = null;
             currentLostItemId = null;
+        }
+
+        function openMessageNotification(notificationId, conversationId) {
+            // Mark as read
+            markAsRead(notificationId);
+            // Redirect to conversation
+            setTimeout(() => {
+                window.location.href = `/messages/${conversationId}`;
+            }, 300);
         }
 
         function openMessaging() {

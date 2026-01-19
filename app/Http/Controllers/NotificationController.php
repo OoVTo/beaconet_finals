@@ -11,7 +11,7 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Auth::user()->notifications()
-            ->with(['foundReport.reporter', 'foundReport.lostItem'])
+            ->with(['foundReport.reporter', 'foundReport.lostItem', 'conversation.owner', 'conversation.finder', 'conversation.lostItem'])
             ->orderBy('created_at', 'desc')
             ->get();
         return response()->json($notifications);
@@ -21,7 +21,7 @@ class NotificationController extends Controller
     {
         $unreadCount = Auth::user()->notifications()->where('is_read', false)->count();
         $notifications = Auth::user()->notifications()
-            ->with(['foundReport.reporter', 'foundReport.lostItem'])
+            ->with(['foundReport.reporter', 'foundReport.lostItem', 'conversation.owner', 'conversation.finder', 'conversation.lostItem'])
             ->where('is_read', false)
             ->orderBy('created_at', 'desc')
             ->get();
