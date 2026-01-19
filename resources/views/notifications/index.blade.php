@@ -24,13 +24,13 @@
             --border: #444;
         }
         body { font-family: Arial; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; }
-        .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .navbar h2 { display: flex; gap: 10px; align-items: center; margin: 0; white-space: nowrap; }
         .navbar a, .navbar button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; transition: opacity 0.3s; margin-left: 20px; display: flex; gap: 8px; align-items: center; }
         .navbar a:hover, .navbar button:hover { opacity: 0.8; }
         .theme-toggle { background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .theme-toggle:hover { background: rgba(255,255,255,0.3); }
-        .container { max-width: 900px; margin: 20px auto; padding: 20px; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; margin-top: 70px; }
         .inbox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .inbox-list { background: var(--bg); border-radius: 10px; overflow: hidden; }
         .inbox-item { border-bottom: 1px solid var(--border); padding: 15px 20px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; background: var(--bg); color: var(--text); }
