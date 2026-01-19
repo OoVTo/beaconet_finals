@@ -1,367 +1,540 @@
-# BEACONET-mini 🌍
+# 🌍 BEACONET-mini
 
-A Laravel-based web application for posting and finding lost items on an interactive map.
+<div align="center">
 
-## 🎯 Quick Start
+```ascii
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║     ██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███╗   ██╗    ║
+║     ██╔══██╗██╔════╝██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ║
+║     ██████╔╝█████╗  ███████║██║     ██║   ██║██╔██╗ ██║    ║
+║     ██╔══██╗██╔══╝  ██╔══██║██║     ██║   ██║██║╚██╗██║    ║
+║     ██████╔╝███████╗██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ║
+║     ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝    ║
+║                                                              ║
+║              🗺️  Lost & Found on the Map  🔍                ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+```
 
-### For Windows Users:
+**A Laravel-powered interactive mapping platform for reuniting people with their lost belongings**
 
-1. **Using Batch Script (Recommended)**:
-   ```cmd
-   start.bat
-   ```
+---
 
-2. **Using PowerShell**:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File start.ps1
-   ```
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white&labelColor=2D3748)
+![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php&logoColor=white&labelColor=2D3748)
+![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white&labelColor=2D3748)
+![Leaflet](https://img.shields.io/badge/Leaflet.js-Map-199900?style=for-the-badge&logo=leaflet&logoColor=white&labelColor=2D3748)
 
-3. **Manual Setup**:
-   ```bash
-   composer install
-   php artisan key:generate
-   php artisan migrate --force
-   php artisan db:seed
-   php artisan storage:link
-   php artisan serve
-   ```
+</div>
 
-Then open your browser to **http://127.0.0.1:8000**
+---
 
-## 👤 Default Credentials
+## 🚀 Lightning Fast Setup
 
-- **Admin Account**:
-  - Email: `admin@email.com`
-  - Password: `admin@123123123`
+<table>
+<tr>
+<td width="33%">
 
-## ✨ Key Features
+### 🪟 Windows Batch
+```cmd
+start.bat
+```
+*One-click launch*
 
-✅ **User Authentication**
-- Simple registration (no email verification)
-- Login/logout functionality
-- Session management
+</td>
+<td width="33%">
 
-✅ **Interactive Map Dashboard**
-- View lost items as markers on Leaflet.js map
-- Right-click to set location for posting
-- OpenStreetMap integration
+### ⚡ PowerShell
+```powershell
+.\start.ps1
+```
+*Automated setup*
 
-✅ **Lost Item Management**
-- Post lost items with title, description, image
-- Automatic GPS coordinates from map
-- Track item status (lost/found/resolved)
-- Delete your own items
+</td>
+<td width="33%">
 
-✅ **Found Item Reporting**
-- Report items as found
-- Upload photo evidence
-- Send notification to item owner
-- Message describing location
+### 🛠️ Manual
+```bash
+composer install
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
+*Full control*
 
-✅ **Notification System**
-- Get notified when someone finds your item
-- View notification history
-- Mark as read/delete notifications
-- Photo and message from finder
+</td>
+</tr>
+</table>
 
-✅ **User Settings**
-- Dark/Light mode toggle
-- Update username
-- Change password
-- Enable/disable notifications
+> 🌐 **Launch URL:** http://127.0.0.1:8000
 
-✅ **Admin Dashboard**
-- View statistics (users, items, reports)
-- Manage users (delete functionality)
-- Manage lost items
-- Manage found reports
-- Access at `/admin`
+---
 
-## 📁 Project Structure
+## 🔑 Access Portal
+
+<div align="center">
+
+| Role | Email | Password |
+|:----:|:-----:|:--------:|
+| 👑 **Admin** | `admin@email.com` | `admin@123123123` |
+
+</div>
+
+---
+
+## ✨ Feature Showcase
+
+<details open>
+<summary><b>🗺️ Interactive Map Dashboard</b></summary>
+
+```
+┌─────────────────────────────────────────────┐
+│  🌍 OpenStreetMap Integration               │
+│  📍 Right-click to Drop Location Pin        │
+│  🔵 Visual Markers for Lost Items           │
+│  🔍 Click Markers for Item Details          │
+│  🎯 Real-time GPS Coordinates               │
+└─────────────────────────────────────────────┘
+```
+
+</details>
+
+<details open>
+<summary><b>👤 User Authentication System</b></summary>
+
+- ✅ Instant registration (no email verification)
+- 🔐 Secure login with session management
+- 🚪 Quick logout functionality
+- 🛡️ CSRF protection on all forms
+
+</details>
+
+<details open>
+<summary><b>📦 Lost Item Management</b></summary>
+
+```javascript
+POST_ITEM {
+  ✏️  title: "Your Item Name"
+  📝  description: "Detailed description"
+  📸  image: "Optional photo upload"
+  📍  coordinates: "Auto-captured from map"
+  🏷️  status: ["lost", "found", "resolved"]
+}
+```
+
+</details>
+
+<details open>
+<summary><b>🔔 Smart Notification System</b></summary>
+
+| Event | Notification |
+|-------|-------------|
+| 🎉 Item Found | Instant alert with photo & message |
+| 📬 New Report | Details from finder |
+| ✅ Status Update | Track your item's journey |
+| 🗑️ Manageable | Mark as read or delete |
+
+</details>
+
+<details open>
+<summary><b>⚙️ User Settings & Preferences</b></summary>
+
+- 🌓 **Theme Toggle:** Dark/Light mode
+- ✏️ **Username Update:** Change display name
+- 🔒 **Password Change:** Enhanced security
+- 🔔 **Notification Control:** Enable/disable alerts
+
+</details>
+
+<details open>
+<summary><b>👨‍💼 Admin Control Center</b></summary>
+
+**Dashboard Stats:**
+```
+┌─────────────┬─────────────┬─────────────┐
+│ 👥 Users    │ 📦 Items    │ 📊 Reports  │
+├─────────────┼─────────────┼─────────────┤
+│ Total Count │ Lost Items  │ Found Total │
+└─────────────┴─────────────┴─────────────┘
+```
+
+**Management Tools:**
+- 🗑️ Delete users
+- 📦 Manage lost items
+- 📋 Review found reports
+- 🔍 Monitor activity
+
+</details>
+
+---
+
+## 📂 Project Architecture
 
 ```
 BEACONET-mini/
-├── app/
-│   ├── Http/Controllers/       # Business logic
-│   ├── Models/                 # Database models
-│   └── Middleware/             # Admin middleware
-├── database/
-│   ├── database.sqlite         # SQLite database
-│   ├── migrations/             # Database schema
-│   └── seeders/                # Database seeds
-├── resources/views/            # Blade templates
-│   ├── auth/                   # Login/Register
-│   ├── dashboard/              # Main app
-│   ├── admin/                  # Admin pages
-│   ├── settings/               # User settings
-│   └── notifications/          # Notifications
-├── routes/web.php              # URL routes
-└── start.bat / start.ps1        # Startup scripts
+│
+├── 🎮 app/
+│   ├── Http/Controllers/      → Business logic layer
+│   ├── Models/                → Database entities
+│   └── Middleware/            → Admin authorization
+│
+├── 🗄️ database/
+│   ├── database.sqlite        → SQLite database file
+│   ├── migrations/            → Schema definitions
+│   └── seeders/               → Initial data
+│
+├── 🎨 resources/views/
+│   ├── auth/                  → Login & Register pages
+│   ├── dashboard/             → Main application UI
+│   ├── admin/                 → Admin interface
+│   ├── settings/              → User preferences
+│   └── notifications/         → Notification center
+│
+├── 🛣️ routes/web.php          → URL routing configuration
+│
+└── 🚀 start.bat / start.ps1    → Quick launch scripts
 ```
 
-## 🗄️ Database Schema
+---
 
-### users
-- id, name, email, password, role (user/admin)
+## 💾 Database Schema
 
-### lost_items  
-- id, user_id, title, description, image_path
-- latitude, longitude, location_name, status
+<div align="center">
 
-### found_reports
-- id, lost_item_id, reporter_id, message, image_path, status
+```mermaid
+graph LR
+    A[👤 users] --> B[📦 lost_items]
+    B --> C[🔍 found_reports]
+    C --> D[🔔 notifications]
+    A --> E[⚙️ user_preferences]
+    
+    style A fill:#10b981,stroke:#065f46,color:#fff
+    style B fill:#10b981,stroke:#065f46,color:#fff
+    style C fill:#10b981,stroke:#065f46,color:#fff
+    style D fill:#10b981,stroke:#065f46,color:#fff
+    style E fill:#10b981,stroke:#065f46,color:#fff
+```
 
-### notifications
-- id, user_id, found_report_id, type, title, message, is_read
+</div>
 
-### user_preferences
-- id, user_id, theme (light/dark), notifications_enabled
+### 📊 Table Structures
 
-## 🛠️ Technologies
+<table>
+<tr>
+<td>
 
-- **Backend**: Laravel 12 (PHP 8.1+)
-- **Database**: SQLite
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Maps**: Leaflet.js with OpenStreetMap
-- **Authentication**: Laravel Auth
-- **File Upload**: Local storage
+**users**
+- 🆔 id
+- 👤 name
+- 📧 email
+- 🔒 password
+- 🎭 role
 
-## 🔄 Workflow
+</td>
+<td>
 
-### Posting a Lost Item
-1. Go to Dashboard
-2. Fill in item details
-3. **Right-click on map** to set location
-4. Upload optional image
-5. Click "Post Item"
-6. Item appears as marker for all users
+**lost_items**
+- 🆔 id
+- 👤 user_id
+- 📝 title
+- 📄 description
+- 🖼️ image_path
 
-### Reporting a Found Item
-1. Click any marker on the map
-2. View item details in modal
-3. Click "Found this item?"
-4. Fill in message (where found, condition, etc.)
-5. Upload photo of item
-6. Submit
-7. Item owner gets notification
+</td>
+<td>
 
-### Managing Items
-- View your posted items in sidebar
-- Delete items you've posted
-- Check found reports received
-- Accept/reject found reports
+**found_reports**
+- 🆔 id
+- 📦 lost_item_id
+- 👤 reporter_id
+- 💬 message
+- 📸 image_path
 
-### Admin Management
-1. Login as admin
-2. Visit `/admin`
-3. View dashboard statistics
-4. Manage users, items, reports
-5. Delete problematic content
+</td>
+</tr>
+</table>
 
-## 🌐 Routes Overview
+---
 
-### Public Routes
-- `/` - Home page
-- `/login` - Login form
-- `/register` - Registration form
+## 🛠️ Technology Stack
 
-### User Routes (Authenticated)
-- `/dashboard` - Main map interface
-- `/notifications` - View notifications
-- `/settings` - User settings
-- `/lost-items` - Manage lost items (JSON API)
-- `/found-reports` - Report found items (JSON API)
+<div align="center">
 
-### Admin Routes (Admin Only)
-- `/admin` - Dashboard
-- `/admin/users` - Manage users
-- `/admin/lost-items` - Manage items
-- `/admin/found-reports` - Manage reports
+| Layer | Technology | Purpose |
+|:-----:|:----------:|:-------:|
+| ⚙️ **Backend** | Laravel 12 | Application framework |
+| 🗄️ **Database** | SQLite | Data persistence |
+| 🎨 **Frontend** | HTML5/CSS3/JS | User interface |
+| 🗺️ **Mapping** | Leaflet.js | Interactive maps |
+| 🔐 **Auth** | Laravel Auth | User management |
+| 📁 **Storage** | Local Storage | File uploads |
 
-## 📋 Features Details
+</div>
 
-### Map Interface
-- Zoom and pan enabled
-- Right-click context menu sets location
-- Blue circular markers for items
-- Click marker for details
+---
 
-### Posting Item
-- Title (required)
-- Description (max 255 chars)
-- Image upload (JPEG, PNG, GIF)
-- GPS coordinates from map
-- Optional location name
+## 🔄 User Workflows
 
-### Found Report
-- Message (max 500 chars)
-- Photo upload
-- Auto-notification to owner
-- Reporter name shown to owner
+### 📍 Posting a Lost Item
 
-### User Preferences
-- Light/Dark theme toggle (stored in DB)
-- Notification on/off
-- Username changes
-- Password updates with verification
+```
+1️⃣ Navigate to Dashboard
+2️⃣ Fill in item details
+3️⃣ Right-click map to set location ← IMPORTANT!
+4️⃣ Upload optional image
+5️⃣ Click "Post Item"
+6️⃣ Item appears as marker for all users
+```
 
-### Admin Features
-- Dashboard with statistics
-- User list with delete
-- Item list with delete
-- Report list with delete
-- View recent activity
+### 🔍 Reporting a Found Item
 
-## 🚀 Running the Application
+```
+1️⃣ Click any marker on the map
+2️⃣ View item details in modal
+3️⃣ Click "Found this item?"
+4️⃣ Describe where you found it
+5️⃣ Upload photo evidence
+6️⃣ Submit report
+7️⃣ Owner receives notification
+```
 
-### First Time Setup
+### 🎯 Managing Your Items
+
+```
+✓ View all your posted items in sidebar
+✓ Delete items you've posted
+✓ Check received found reports
+✓ Accept or reject reports
+```
+
+---
+
+## 🌐 API Routes
+
+<details>
+<summary><b>Public Routes</b></summary>
+
+- `GET /` - Home page
+- `GET /login` - Login form
+- `GET /register` - Registration form
+
+</details>
+
+<details>
+<summary><b>Authenticated Routes</b></summary>
+
+- `GET /dashboard` - Main map interface
+- `GET /notifications` - Notification center
+- `GET /settings` - User preferences
+- `POST /lost-items` - Create lost item
+- `POST /found-reports` - Submit found report
+
+</details>
+
+<details>
+<summary><b>Admin Routes</b></summary>
+
+- `GET /admin` - Admin dashboard
+- `GET /admin/users` - User management
+- `GET /admin/lost-items` - Item management
+- `GET /admin/found-reports` - Report management
+
+</details>
+
+---
+
+## 🚀 Deployment Guide
+
+### First Time Installation
+
 ```bash
+# Navigate to project directory
 cd c:\Users\melch\tong_padua_tacus\BEACONET-mini
+
+# Install dependencies
 composer install
+
+# Generate application key
 php artisan key:generate
+
+# Run migrations and seed database
 php artisan migrate --force
 php artisan db:seed
+
+# Create storage symlink
 php artisan storage:link
+
+# Start development server
 php artisan serve
 ```
 
-### Subsequent Runs
+### Subsequent Launches
+
 ```bash
 php artisan serve
 ```
 
-Then visit **http://127.0.0.1:8000** in your browser.
+> 🌐 Visit **http://127.0.0.1:8000** in your browser
+
+---
+
+## 🧪 Testing Guide
+
+<table>
+<tr>
+<td width="50%">
+
+### 👤 Create Test Account
+1. Click "Register"
+2. Enter name, email, password
+3. Submit (no verification)
+4. Auto-login ✅
+
+</td>
+<td width="50%">
+
+### 📦 Post Test Item
+1. Fill item form
+2. **Right-click map** for location
+3. Add title + image
+4. Submit ✅
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🔍 Find Test Item
+1. Click any map marker
+2. Click "Found this item?"
+3. Add message + photo
+4. Submit ✅
+
+</td>
+<td width="50%">
+
+### 👨‍💼 Test Admin Access
+1. Logout current user
+2. Login as admin
+3. Click "Admin Panel"
+4. Explore dashboard ✅
+
+</td>
+</tr>
+</table>
+
+---
 
 ## 🆘 Troubleshooting
 
-### Composer Installation Failed
+<details>
+<summary><b>❌ Composer Installation Failed</b></summary>
+
 ```bash
 composer install --prefer-source --no-interaction
 ```
 
-### Database Issues
+</details>
+
+<details>
+<summary><b>❌ Database Issues</b></summary>
+
 ```bash
 php artisan migrate:refresh --seed
 ```
 
-### Missing Storage Link
+</details>
+
+<details>
+<summary><b>❌ Missing Storage Link</b></summary>
+
 ```bash
 php artisan storage:link
 ```
 
-### Port 8000 Already in Use
+</details>
+
+<details>
+<summary><b>❌ Port 8000 Already in Use</b></summary>
+
 ```bash
 php artisan serve --port=8001
 ```
 
-## 📱 Testing
-
-### Create Test Account
-1. Click "Register"
-2. Fill in any name, email, password
-3. Submit (no verification needed)
-4. Logged in automatically
-
-### Post Test Item
-1. Fill "Post Lost Item" form
-2. **Must right-click map to set location**
-3. Add title and optional image
-4. Submit
-
-### Find Test Item
-1. Click any marker on map
-2. Click "Found this item?"
-3. Add message and optional photo
-4. Submit
-5. Original poster gets notification
-
-### Admin Test
-1. Logout current user
-2. Login with admin@email.com / admin@123123123
-3. Click "Admin Panel" button
-4. View dashboard and management pages
-
-## 📝 Notes
-
-- SQLite database is included in `database/database.sqlite`
-- Images are stored in `storage/app/public/`
-- All user data stored locally (no external APIs)
-- Map uses free OpenStreetMap tiles
-- Admin account created automatically on first seed
-
-## 🔒 Security
-
-- CSRF protection on all forms
-- Password hashing (bcrypt)
-- User authorization checks
-- Admin-only middleware
-- SQL injection protection (Laravel ORM)
-- Secure session management
-
-## 📞 Support
-
-For issues, refer to:
-- [Laravel Documentation](https://laravel.com/docs)
-- [Leaflet.js Documentation](https://leafletjs.com/)
+</details>
 
 ---
 
-**Version**: 1.0.0  
-**Created**: January 2026  
-**Framework**: Laravel 12  
-**Database**: SQLite  
-**Status**: ✅ Production Ready
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🔒 Security Features
 
-## About Laravel
+<div align="center">
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│  ✅ CSRF Protection on All Forms            │
+│  ✅ Password Hashing (bcrypt)               │
+│  ✅ User Authorization Checks               │
+│  ✅ Admin-Only Middleware                   │
+│  ✅ SQL Injection Protection (ORM)          │
+│  ✅ Secure Session Management               │
+│                                              │
+└──────────────────────────────────────────────┘
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+</div>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📝 Key Notes
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+> 💡 **Database:** SQLite included at `database/database.sqlite`  
+> 💡 **Images:** Stored in `storage/app/public/`  
+> 💡 **Maps:** Free OpenStreetMap tiles  
+> 💡 **Admin:** Created automatically on seed  
+> 💡 **Privacy:** All data stored locally
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 📚 Resources
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+<div align="center">
 
-### Premium Partners
+[![Laravel Docs](https://img.shields.io/badge/Laravel-Documentation-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/docs)
+[![Leaflet Docs](https://img.shields.io/badge/Leaflet-Documentation-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+</div>
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📊 Project Status
 
-## Code of Conduct
+<div align="center">
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Metric | Status |
+|--------|--------|
+| 📦 **Version** | 1.0.0 |
+| 📅 **Created** | January 2026 |
+| 🛠️ **Framework** | Laravel 12 |
+| 🗄️ **Database** | SQLite |
+| ✅ **Status** | Production Ready |
+| 📜 **License** | MIT |
 
-## Security Vulnerabilities
+</div>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+<div align="center">
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 🌟 Built with Laravel • Powered by Community • Mapping Lost to Found 🌟
+
+```
+╔═══════════════════════════════════════════════════════════╗
+║  Made with ❤️ for reconnecting people with their items   ║
+╚═══════════════════════════════════════════════════════════╝
+```
+
+**Happy Mapping! 🗺️✨**
+
+</div>
