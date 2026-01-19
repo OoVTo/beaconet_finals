@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\FoundReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
@@ -51,7 +53,7 @@ class MessageController extends Controller
 
     public function store(Request $request, $conversationId)
     {
-        $conversation = Conversation::find($conversationId);
+        $conversation = Conversation::with(['owner', 'finder'])->find($conversationId);
 
         if (!$conversation) {
             return response()->json(['error' => 'Conversation not found'], 404);
@@ -63,16 +65,41 @@ class MessageController extends Controller
         }
 
         $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // At least message or image must be provided
+        if (!$request->filled('message') && !$request->hasFile('image')) {
+            return response()->json(['error' => 'Message or image is required'], 422);
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('messages', 'public');
+        }
 
         $message = Message::create([
             'conversation_id' => $conversationId,
             'user_id' => Auth::id(),
             'message' => $request->message,
+            'image_path' => $imagePath,
         ]);
 
         $conversation->touch(); // Update conversation timestamp
+
+        // Determine the recipient
+        $recipientId = Auth::id() === $conversation->owner_id ? $conversation->finder_id : $conversation->owner_id;
+
+        // Create notification for the recipient
+        Notification::create([
+            'user_id' => $recipientId,
+            'conversation_id' => $conversationId,
+            'type' => 'new_message',
+            'title' => 'New Message',
+            'message' => Auth::user()->name . ' sent you a message',
+            'is_read' => false,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -80,6 +107,7 @@ class MessageController extends Controller
                 'id' => $message->id,
                 'user_id' => $message->user_id,
                 'message' => $message->message,
+                'image_path' => $message->image_path,
                 'created_at' => $message->created_at,
             ]
         ]);

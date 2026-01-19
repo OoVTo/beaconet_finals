@@ -41,11 +41,14 @@
         .conversation-title-text h3 { margin: 0; font-size: 18px; }
         .conversation-title-text small { color: var(--text-light); display: block; margin-top: 3px; }
         .messages-container { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg-secondary); }
-        .message { margin-bottom: 15px; display: flex; align-items: flex-end; gap: 10px; }
-        .message.sent { flex-direction: row-reverse; }
+        .message { margin-bottom: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .message.received { align-items: flex-start; }
         .message-bubble { max-width: 70%; padding: 10px 15px; border-radius: 10px; word-wrap: break-word; }
         .message.sent .message-bubble { background: var(--primary); color: white; border-radius: 10px 0px 10px 10px; }
         .message.received .message-bubble { background: var(--bg); border: 1px solid var(--border); border-radius: 0px 10px 10px 10px; color: var(--text); }
+        .message-image { max-width: 70%; border-radius: 10px; max-height: 300px; object-fit: cover; }
+        .message.sent .message-image { border-radius: 10px 0px 10px 10px; }
+        .message.received .message-image { border-radius: 0px 10px 10px 10px; }
         .message-time { font-size: 12px; color: var(--text-light); white-space: nowrap; }
         .empty-messages { text-align: center; padding: 40px 20px; color: var(--text-light); }
         .input-container { background: var(--bg); border-top: 1px solid var(--border); padding: 15px 20px; display: flex; gap: 10px; align-items: flex-end; }
@@ -106,7 +109,12 @@
             @else
                 @foreach($messages as $message)
                     <div class="message {{ auth()->id() === $message->user_id ? 'sent' : 'received' }}">
-                        <div class="message-bubble">{{ $message->message }}</div>
+                        @if($message->image_path)
+                            <img src="/storage/{{ $message->image_path }}" class="message-image" alt="Message image">
+                        @endif
+                        @if($message->message)
+                            <div class="message-bubble">{{ $message->message }}</div>
+                        @endif
                         <div class="message-time">{{ $message->created_at->format('H:i') }}</div>
                     </div>
                 @endforeach
@@ -121,10 +129,13 @@
                     name="message" 
                     placeholder="Type your message..." 
                     rows="1" 
-                    required 
                     style="flex: 1;"
                     onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitMessage(); }"
                 ></textarea>
+                <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;">
+                <button type="button" onclick="document.getElementById('imageInput').click()" title="Attach image" style="flex-shrink: 0; background: none; color: var(--primary); font-size: 18px; cursor: pointer; border: none;">
+                    <i class="fas fa-image"></i>
+                </button>
                 <button type="button" onclick="submitMessage()" style="flex-shrink: 0;">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -151,13 +162,16 @@
 
         function submitMessage() {
             const messageInput = document.getElementById('messageInput');
+            const imageInput = document.getElementById('imageInput');
             const message = messageInput.value.trim();
+            const imageFile = imageInput.files[0];
 
-            if (!message) return;
+            if (!message && !imageFile) return;
 
             const formData = new FormData();
             formData.append('_token', document.querySelector('input[name="_token"]').value);
-            formData.append('message', message);
+            if (message) formData.append('message', message);
+            if (imageFile) formData.append('image', imageFile);
 
             fetch(`/messages/{{ $conversation->id }}`, {
                 method: 'POST',
@@ -168,10 +182,11 @@
                 if (data.success) {
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
+                    imageInput.value = '';
                     addMessageToDOM(data.message, true);
                     scrollToBottom();
                 } else {
-                    alert('Error sending message: ' + (data.message || 'Unknown error'));
+                    alert('Error sending message: ' + (data.error || 'Unknown error'));
                 }
             })
             .catch(error => {
@@ -191,10 +206,17 @@
 
             const messageEl = document.createElement('div');
             messageEl.className = `message ${isSent ? 'sent' : 'received'}`;
-            messageEl.innerHTML = `
-                <div class="message-bubble">${escapeHtml(message.message)}</div>
-                <div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
-            `;
+            
+            let html = '';
+            if (message.image_path) {
+                html += `<img src="/storage/${message.image_path}" class="message-image" alt="Message image">`;
+            }
+            if (message.message) {
+                html += `<div class="message-bubble">${escapeHtml(message.message)}</div>`;
+            }
+            html += `<div class="message-time">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>`;
+            
+            messageEl.innerHTML = html;
             container.appendChild(messageEl);
         }
 

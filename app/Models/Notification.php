@@ -12,6 +12,7 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'found_report_id',
+        'conversation_id',
         'type',
         'title',
         'message',
@@ -33,5 +34,10 @@ class Notification extends Model
     public function foundReport()
     {
         return $this->belongsTo(FoundReport::class);
+    }
+
+    public function conversation()
+    {
+        return $this->belongsTo(Conversation::class);
     }
 }
