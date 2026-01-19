@@ -200,7 +200,7 @@
         }
 
         function viewItem(id) {
-            window.location.href = `{{ route('lost-items.show', '') }}/${id}`;
+            window.location.href = `/lost-items/${id}`;
         }
 
         function deleteItem(id) {
