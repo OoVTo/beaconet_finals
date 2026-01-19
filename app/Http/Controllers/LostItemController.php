@@ -55,11 +55,11 @@ class LostItemController extends Controller
 
     public function show($id)
     {
-        $lostItem = LostItem::with(['user', 'foundReports'])->find($id);
-        if (!$lostItem) {
-            return response()->json(['error' => 'Not found'], 404);
+        $item = LostItem::with(['user', 'foundReports.reporter'])->find($id);
+        if (!$item) {
+            abort(404, 'Lost item not found');
         }
-        return response()->json($lostItem);
+        return view('lost-items.show', ['item' => $item]);
     }
 
     public function destroy($id)
