@@ -93,19 +93,19 @@ class LostItemController extends Controller
             return response()->json(['error' => 'Item not found'], 404);
         }
         
-        if ($lostItem->user_id !== Auth::id()) {
-            \Log::warning('Unauthorized update attempt', [
-                'item_id' => $id,
-                'item_user_id' => $lostItem->user_id,
-                'auth_id' => Auth::id()
-            ]);
-            return response()->json(['error' => 'You do not own this item'], 403);
-        }
-
-        if ($request->has('status')) {
+        // Allow the item owner or anyone marking it as received to update the status
+        if ($request->has('status') && $request->status === 'received') {
+            // Anyone can mark an item as received
+            $lostItem->status = $request->status;
+            $lostItem->save();
+            \Log::info('Item status updated to received', ['id' => $id, 'updated_by' => Auth::id()]);
+        } elseif ($lostItem->user_id === Auth::id() && $request->has('status')) {
+            // Only owner can update other statuses
             $lostItem->status = $request->status;
             $lostItem->save();
             \Log::info('Item status updated', ['id' => $id, 'new_status' => $request->status]);
+        } else {
+            return response()->json(['error' => 'You do not own this item'], 403);
         }
 
         return response()->json($lostItem);

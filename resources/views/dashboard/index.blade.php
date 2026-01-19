@@ -5,70 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - BEACONET-mini</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
-        .navbar { background: #667eea; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #6EE7B7;
+            --bg: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #999;
+            --border: #ddd;
+        }
+        body.dark-mode {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #6EE7B7;
+            --bg: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text: #ffffff;
+            --text-light: #aaa;
+            --border: #444;
+        }
+        body { font-family: Arial, sans-serif; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; }
+        .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .navbar h2 { font-size: 24px; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a, .nav-links button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; }
-        .nav-links a:hover { text-decoration: underline; }
-        .nav-links button:hover { text-decoration: underline; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a, .nav-links button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; transition: opacity 0.3s; display: flex; align-items: center; gap: 5px; }
+        .nav-links a:hover, .nav-links button:hover { opacity: 0.8; }
+        .theme-toggle { background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
         .container { display: flex; height: calc(100vh - 60px); }
-        .sidebar { width: 300px; background: white; padding: 20px; border-right: 1px solid #ddd; overflow-y: auto; }
+        .sidebar { width: 300px; background: var(--bg); padding: 20px; border-right: 1px solid var(--border); overflow-y: auto; }
         .main { flex: 1; display: flex; flex-direction: column; }
         #map { flex: 1; }
         .sidebar-section { margin-bottom: 30px; }
-        .sidebar-section h3 { color: #667eea; margin-bottom: 15px; }
+        .sidebar-section h3 { color: var(--primary); margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #333; font-weight: 500; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        label { display: block; margin-bottom: 5px; color: var(--text); font-weight: 500; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 14px; background: var(--bg-secondary); color: var(--text); }
         textarea { resize: vertical; }
-        .btn { width: 100%; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-        .btn:hover { background: #5568d3; }
+        .btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
+        .btn:hover { background: var(--primary-dark); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; }
+        .modal-content { background: var(--bg); padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; color: var(--text); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { color: #333; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+        .modal-header h2 { color: var(--text); }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-light); }
         .modal-body { margin-bottom: 20px; }
         .modal-body img { max-width: 100%; border-radius: 5px; margin-bottom: 15px; }
         .modal-footer { display: flex; gap: 10px; }
-        .btn-secondary { background: #f0f0f0; color: #333; }
-        .btn-secondary:hover { background: #e0e0e0; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
         .item-list { margin-top: 20px; }
-        .item { padding: 10px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; cursor: pointer; }
-        .item:hover { background: #f9f9f9; }
-        .theme-toggle { margin-left: 20px; }
-        .search-container { padding: 10px 15px; background: white; border-bottom: 1px solid #ddd; display: flex; gap: 10px; }
-        #searchInput { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-        #searchBtn { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #searchBtn:hover { background: #5568d3; }
-        .search-results { position: absolute; top: 60px; left: 15px; background: white; border: 1px solid #ddd; border-radius: 5px; max-width: 300px; max-height: 200px; overflow-y: auto; z-index: 500; display: none; }
-        .search-result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .search-result-item:hover { background: #f5f5f5; }
+        .item { padding: 10px; border: 1px solid var(--border); border-radius: 5px; margin-bottom: 10px; cursor: pointer; transition: background 0.3s; background: var(--bg-secondary); color: var(--text); }
+        .item:hover { background: var(--border); }
+        .search-container { padding: 10px 15px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+        #searchInput { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 14px; background: var(--bg-secondary); color: var(--text); }
+        #searchBtn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+        #searchBtn:hover { background: var(--primary-dark); }
+        .search-results { position: absolute; top: 60px; left: 15px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; max-width: 300px; max-height: 200px; overflow-y: auto; z-index: 500; display: none; }
+        .search-result-item { padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; color: var(--text); transition: background 0.3s; }
+        .search-result-item:hover { background: var(--bg-secondary); }
         .notification-badge { position: relative; display: inline-block; }
-        .notification-badge .badge { position: absolute; top: -8px; right: -8px; background: #d32f2f; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; display: none; }
+        .notification-badge .badge { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; display: none; }
         .notification-badge .badge.active { display: flex; }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h2>BEACONET-mini</h2>
+        <h2><i class="fas fa-map-pin"></i> BEACONET-mini</h2>
         <div class="nav-links">
             <span>Welcome, {{ auth()->user()->name }}</span>
             <div class="notification-badge">
-                <a href="{{ route('notifications.index') }}">Notifications</a>
+                <a href="{{ route('notifications.index') }}" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
                 <span class="badge" id="notificationBadge"></span>
             </div>
-            <a href="{{ route('settings.index') }}">Settings</a>
+            <a href="{{ route('settings.index') }}" title="Settings">
+                <i class="fas fa-cog"></i>
+            </a>
             @if(auth()->user()->isAdmin())
-                <a href="{{ route('admin.dashboard') }}" style="background: #ff9800; padding: 5px 15px; border-radius: 5px;">Admin Panel</a>
+                <a href="{{ route('admin.dashboard') }}" style="background: #f59e0b; padding: 5px 15px; border-radius: 5px; gap: 8px;">
+                    <i class="fas fa-lock"></i> Admin
+                </a>
             @endif
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                 @csrf
-                <button type="submit">Logout</button>
+                <button type="submit"><i class="fas fa-sign-out-alt"></i></button>
             </form>
         </div>
     </div>
@@ -152,6 +182,17 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
+        // Initialize dark mode from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        }
+
         let map;
         let selectedLat = null;
         let selectedLng = null;

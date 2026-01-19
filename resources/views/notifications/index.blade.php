@@ -2,52 +2,76 @@
 <html>
 <head>
     <title>Notifications - BEACONET-mini</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial; background: #f5f5f5; }
-        .navbar { background: #667eea; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h2 { font-size: 24px; }
-        .navbar a, .navbar button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; margin-left: 20px; }
-        .navbar a:hover { text-decoration: underline; }
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --bg: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+            --border: #eee;
+        }
+        body.dark-mode {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --bg: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text: #ffffff;
+            --text-light: #bbb;
+            --border: #444;
+        }
+        body { font-family: Arial; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; }
+        .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h2 { display: flex; gap: 10px; align-items: center; }
+        .navbar a, .navbar button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; transition: opacity 0.3s; margin-left: 20px; display: flex; gap: 8px; align-items: center; }
+        .navbar a:hover, .navbar button:hover { opacity: 0.8; }
+        .theme-toggle { background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
         .container { max-width: 900px; margin: 20px auto; padding: 20px; }
         .inbox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .inbox-list { background: white; border-radius: 10px; overflow: hidden; }
-        .inbox-item { border-bottom: 1px solid #eee; padding: 15px 20px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .inbox-item:hover { background: #f9f9f9; }
-        .inbox-item.unread { background: #f0f4ff; border-left: 4px solid #667eea; }
+        .inbox-list { background: var(--bg); border-radius: 10px; overflow: hidden; }
+        .inbox-item { border-bottom: 1px solid var(--border); padding: 15px 20px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; background: var(--bg); color: var(--text); }
+        .inbox-item:hover { background: var(--bg-secondary); }
+        .inbox-item.unread { background: var(--bg-secondary); border-left: 4px solid var(--primary); }
         .inbox-item-content { flex: 1; }
-        .inbox-item-sender { font-weight: bold; color: #333; }
-        .inbox-item-preview { color: #666; font-size: 14px; margin-top: 5px; }
-        .inbox-item-date { color: #999; font-size: 12px; margin-top: 5px; }
-        .inbox-item-badge { background: #d32f2f; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
+        .inbox-item-sender { font-weight: bold; color: var(--text); }
+        .inbox-item-preview { color: var(--text-light); font-size: 14px; margin-top: 5px; }
+        .inbox-item-date { color: var(--text-light); font-size: 12px; margin-top: 5px; }
+        .inbox-item-badge { background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
         .notification-detail { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
         .notification-detail.active { display: flex; }
-        .detail-content { background: white; padding: 40px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .detail-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+        .detail-content { background: var(--bg); padding: 40px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; color: var(--text); }
+        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .detail-close { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-light); }
         .detail-from { margin-bottom: 15px; }
-        .detail-from label { color: #999; font-size: 12px; }
-        .detail-from p { font-weight: bold; color: #333; margin-top: 3px; }
+        .detail-from label { color: var(--text-light); font-size: 12px; }
+        .detail-from p { font-weight: bold; color: var(--text); margin-top: 3px; }
         .detail-image { max-width: 100%; border-radius: 5px; margin: 20px 0; }
-        .detail-message { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; color: #333; line-height: 1.6; }
-        .detail-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
-        .btn { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .btn:hover { background: #5568d3; }
-        .btn-success { background: #4CAF50; }
-        .btn-success:hover { background: #45a049; }
-        .btn-danger { background: #d32f2f; }
-        .btn-danger:hover { background: #b71c1c; }
-        .empty-message { text-align: center; padding: 40px; color: #999; }
+        .detail-message { background: var(--bg-secondary); padding: 15px; border-radius: 5px; margin: 20px 0; color: var(--text); line-height: 1.6; }
+        .detail-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: background 0.3s; display: flex; gap: 8px; align-items: center; }
+        .btn:hover { background: var(--primary-dark); }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .empty-message { text-align: center; padding: 40px; color: var(--text-light); }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h2>Notifications</h2>
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
         <div>
-            <a href="{{ route('dashboard') }}">Dashboard</a>
+            <a href="{{ route('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                 @csrf
-                <button type="submit">Logout</button>
+                <button type="submit" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
             </form>
         </div>
     </div>
@@ -55,7 +79,7 @@
     <div class="container">
         <div class="inbox-header">
             <h3>Inbox</h3>
-            <button class="btn" onclick="markAllAsRead()" style="width: auto;">Mark All as Read</button>
+            <button class="btn" onclick="markAllAsRead()" style="width: auto;"><i class="fas fa-envelope-open"></i> Mark All as Read</button>
         </div>
 
         <div class="inbox-list" id="inboxList"><div class="empty-message">Loading...</div></div>
@@ -79,13 +103,24 @@
             <div class="detail-message" id="detailMessage"></div>
 
             <div class="detail-actions">
-                <button class="btn btn-success" id="markReceivedBtn" onclick="markItemReceived()">I Received This Item</button>
-                <button class="btn btn-danger" onclick="deleteCurrentNotification()">Delete</button>
+                <button class="btn btn-success" id="markReceivedBtn" onclick="markItemReceived()"><i class="fas fa-check"></i> I Received This Item</button>
+                <button class="btn btn-danger" onclick="deleteCurrentNotification()"><i class="fas fa-trash"></i> Delete</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Initialize dark mode from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        }
+
         let currentNotificationId = null;
         let currentFoundReportId = null;
         let currentLostItemId = null;
