@@ -79,6 +79,9 @@
         <h2><i class="fas fa-map-pin"></i> BEACONET-mini</h2>
         <div class="nav-links">
             <span>Welcome, {{ auth()->user()->name }}</span>
+            <a href="{{ route('lost-items.history') }}" title="Lost Items History">
+                <i class="fas fa-history"></i>
+            </a>
             <div class="notification-badge">
                 <a href="{{ route('notifications.index') }}" title="Notifications">
                     <i class="fas fa-bell"></i>
@@ -124,11 +127,6 @@
                     <input type="text" id="location" placeholder="Click on map to set location" readonly>
                 </div>
                 <button class="btn" onclick="postLostItem()">Post Item</button>
-            </div>
-
-            <div class="sidebar-section">
-                <h3>Your Lost Items</h3>
-                <div id="yourItems" class="item-list"></div>
             </div>
         </div>
 
@@ -350,21 +348,6 @@
                     });
                 })
                 .catch(e => console.error('Error loading items:', e));
-
-            // Load only user's items for sidebar
-            fetch('{{ route("lost-items.myItems") }}')
-                .then(r => r.json())
-                .then(items => {
-                    const container = document.getElementById('yourItems');
-                    if (items.length === 0) {
-                        container.innerHTML = '<p style="color: #999; font-size: 14px;">No items posted yet</p>';
-                    } else {
-                        container.innerHTML = items.map(item => 
-                            `<div class="item">${item.title} - <span style="color: ${item.status === 'lost' ? '#ff6b6b' : '#51cf66'}">${item.status}</span></div>`
-                        ).join('');
-                    }
-                })
-                .catch(e => console.error('Error loading your items:', e));
         }
 
         function postLostItem() {
