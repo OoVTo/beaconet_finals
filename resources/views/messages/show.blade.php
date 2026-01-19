@@ -171,14 +171,36 @@
             const formData = new FormData();
             formData.append('_token', document.querySelector('input[name="_token"]').value);
             if (message) formData.append('message', message);
-            if (imageFile) formData.append('image', imageFile);
+            if (imageFile) {
+                console.log('Appending image file:', imageFile.name, imageFile.size);
+                formData.append('image', imageFile);
+            }
+
+            console.log('Submitting message:', { message, hasImage: !!imageFile });
 
             fetch(`/messages/{{ $conversation->id }}`, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        try {
+                            const json = JSON.parse(text);
+                            throw new Error(json.error || `Server error (${response.status})`);
+                        } catch (e) {
+                            if (e instanceof SyntaxError) {
+                                throw new Error(`Server error (${response.status}): ${text}`);
+                            }
+                            throw e;
+                        }
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
@@ -191,7 +213,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to send message');
+                alert('Error sending message: ' + error.message);
             });
         }
 

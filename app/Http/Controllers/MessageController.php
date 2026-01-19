@@ -53,64 +53,70 @@ class MessageController extends Controller
 
     public function store(Request $request, $conversationId)
     {
-        $conversation = Conversation::with(['owner', 'finder'])->find($conversationId);
+        try {
+            $conversation = Conversation::with(['owner', 'finder'])->find($conversationId);
 
-        if (!$conversation) {
-            return response()->json(['error' => 'Conversation not found'], 404);
+            if (!$conversation) {
+                return response()->json(['error' => 'Conversation not found'], 404);
+            }
+
+            // Check if user is part of this conversation
+            if (Auth::id() !== $conversation->owner_id && Auth::id() !== $conversation->finder_id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $request->validate([
+                'message' => 'nullable|string|max:1000',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            ]);
+
+            // At least message or image must be provided
+            if (!$request->filled('message') && !$request->hasFile('image')) {
+                return response()->json(['error' => 'Message or image is required'], 422);
+            }
+
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('messages', 'public');
+            }
+
+            $message = Message::create([
+                'conversation_id' => $conversationId,
+                'user_id' => Auth::id(),
+                'message' => $request->message,
+                'image_path' => $imagePath,
+            ]);
+
+            $conversation->touch(); // Update conversation timestamp
+
+            // Determine the recipient
+            $recipientId = Auth::id() === $conversation->owner_id ? $conversation->finder_id : $conversation->owner_id;
+
+            // Create notification for the recipient
+            Notification::create([
+                'user_id' => $recipientId,
+                'conversation_id' => $conversationId,
+                'type' => 'new_message',
+                'title' => 'New Message',
+                'message' => Auth::user()->name . ' sent you a message',
+                'is_read' => false,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => [
+                    'id' => $message->id,
+                    'user_id' => $message->user_id,
+                    'message' => $message->message,
+                    'image_path' => $message->image_path,
+                    'created_at' => $message->created_at,
+                ]
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'messages' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error sending message: ' . $e->getMessage()], 500);
         }
-
-        // Check if user is part of this conversation
-        if (Auth::id() !== $conversation->owner_id && Auth::id() !== $conversation->finder_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $request->validate([
-            'message' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-        ]);
-
-        // At least message or image must be provided
-        if (!$request->filled('message') && !$request->hasFile('image')) {
-            return response()->json(['error' => 'Message or image is required'], 422);
-        }
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('messages', 'public');
-        }
-
-        $message = Message::create([
-            'conversation_id' => $conversationId,
-            'user_id' => Auth::id(),
-            'message' => $request->message,
-            'image_path' => $imagePath,
-        ]);
-
-        $conversation->touch(); // Update conversation timestamp
-
-        // Determine the recipient
-        $recipientId = Auth::id() === $conversation->owner_id ? $conversation->finder_id : $conversation->owner_id;
-
-        // Create notification for the recipient
-        Notification::create([
-            'user_id' => $recipientId,
-            'conversation_id' => $conversationId,
-            'type' => 'new_message',
-            'title' => 'New Message',
-            'message' => Auth::user()->name . ' sent you a message',
-            'is_read' => false,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => [
-                'id' => $message->id,
-                'user_id' => $message->user_id,
-                'message' => $message->message,
-                'image_path' => $message->image_path,
-                'created_at' => $message->created_at,
-            ]
-        ]);
     }
 
     public function startFromFoundReport($foundReportId)
