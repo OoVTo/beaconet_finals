@@ -66,25 +66,13 @@ class MessageController extends Controller
             }
 
             $request->validate([
-                'message' => 'nullable|string|max:1000',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'message' => 'required|string|max:1000',
             ]);
-
-            // At least message or image must be provided
-            if (!$request->filled('message') && !$request->hasFile('image')) {
-                return response()->json(['error' => 'Message or image is required'], 422);
-            }
-
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('messages', 'public');
-            }
 
             $message = Message::create([
                 'conversation_id' => $conversationId,
                 'user_id' => Auth::id(),
                 'message' => $request->message,
-                'image_path' => $imagePath,
             ]);
 
             $conversation->touch(); // Update conversation timestamp
@@ -108,7 +96,6 @@ class MessageController extends Controller
                     'id' => $message->id,
                     'user_id' => $message->user_id,
                     'message' => $message->message,
-                    'image_path' => $message->image_path,
                     'created_at' => $message->created_at,
                 ]
             ]);

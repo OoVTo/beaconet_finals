@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->string('image_path')->nullable()->after('message');
-        });
+        // Image functionality removed - this migration is no longer needed
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('image_path');
-        });
+        // No changes to reverse
     }
 };

@@ -13,7 +13,6 @@ class Message extends Model
         'conversation_id',
         'user_id',
         'message',
-        'image_path',
         'read_at',
     ];
 
