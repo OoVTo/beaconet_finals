@@ -363,6 +363,7 @@
             }
 
             const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
             formData.append('title', title);
             formData.append('description', document.getElementById('description').value);
             formData.append('latitude', selectedLat);
@@ -382,7 +383,15 @@
             .then(r => {
                 if (!r.ok) {
                     return r.text().then(text => {
-                        throw new Error(`Server error (${r.status}): ${text}`);
+                        try {
+                            const json = JSON.parse(text);
+                            throw new Error(json.error || `Server error (${r.status})`);
+                        } catch (e) {
+                            if (e instanceof SyntaxError) {
+                                throw new Error(`Server error (${r.status}): Invalid response`);
+                            }
+                            throw e;
+                        }
                     });
                 }
                 return r.json();
