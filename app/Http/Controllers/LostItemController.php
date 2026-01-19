@@ -26,6 +26,10 @@ class LostItemController extends Controller
     public function store(Request $request)
     {
         try {
+            // Convert latitude and longitude to numeric values
+            $latitude = floatval($request->input('latitude'));
+            $longitude = floatval($request->input('longitude'));
+
             $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string|max:500',
@@ -44,8 +48,8 @@ class LostItemController extends Controller
                 'user_id' => Auth::id(),
                 'title' => $request->title,
                 'description' => $request->description,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'location_name' => $request->location_name,
                 'image_path' => $imagePath,
                 'status' => 'lost',

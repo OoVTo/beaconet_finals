@@ -373,6 +373,12 @@
             const imageFile = document.getElementById('image').files[0];
             if (imageFile) formData.append('image', imageFile);
 
+            console.log('Submitting form data:');
+            console.log('Title:', title);
+            console.log('Latitude:', selectedLat);
+            console.log('Longitude:', selectedLng);
+            console.log('Location:', document.getElementById('location').value);
+
             fetch('{{ route("lost-items.store") }}', {
                 method: 'POST',
                 headers: {
@@ -385,6 +391,12 @@
                     return r.text().then(text => {
                         try {
                             const json = JSON.parse(text);
+                            if (json.messages) {
+                                const errorDetails = Object.entries(json.messages)
+                                    .map(([field, msgs]) => `${field}: ${msgs.join(', ')}`)
+                                    .join('\n');
+                                throw new Error(`Validation failed:\n${errorDetails}`);
+                            }
                             throw new Error(json.error || `Server error (${r.status})`);
                         } catch (e) {
                             if (e instanceof SyntaxError) {
