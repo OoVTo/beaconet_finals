@@ -225,7 +225,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ status: 'received' })
+                body: JSON.stringify({ status: 'resolved' })
             })
             .then(r => {
                 console.log('Response status:', r.status);

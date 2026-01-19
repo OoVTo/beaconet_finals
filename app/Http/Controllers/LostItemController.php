@@ -96,11 +96,11 @@ class LostItemController extends Controller
             }
             
             // Allow the item owner or anyone marking it as received to update the status
-            if ($request->has('status') && $request->status === 'received') {
-                // Anyone can mark an item as received
+            if ($request->has('status') && $request->status === 'resolved') {
+                // Anyone can mark an item as received/resolved
                 $lostItem->status = $request->status;
                 $saved = $lostItem->save();
-                \Log::info('Item status updated to received', [
+                \Log::info('Item status updated to resolved', [
                     'id' => $id, 
                     'updated_by' => Auth::id(),
                     'save_result' => $saved
