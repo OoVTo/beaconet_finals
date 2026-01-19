@@ -94,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{conversationId}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{conversationId}', [MessageController::class, 'store'])->name('messages.store');
-    Route::post('/found-reports/{foundReportId}/message', [MessageController::class, 'startFromFoundReport'])->name('messages.startFromFoundReport');
+    Route::get('/found-reports/{foundReportId}/message', [MessageController::class, 'startFromFoundReport'])->name('messages.startFromFoundReport');
 });
 
 // Admin Routes
