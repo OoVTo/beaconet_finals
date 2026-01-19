@@ -79,35 +79,52 @@ class LostItemController extends Controller
 
     public function update($id, Request $request)
     {
-        $lostItem = LostItem::find($id);
-        
-        \Log::info('Update Lost Item Request', [
-            'id' => $id,
-            'auth_id' => Auth::id(),
-            'item_exists' => !!$lostItem,
-            'item_user_id' => $lostItem?->user_id,
-            'status' => $request->status ?? null
-        ]);
-        
-        if (!$lostItem) {
-            return response()->json(['error' => 'Item not found'], 404);
+        try {
+            $lostItem = LostItem::find($id);
+            
+            \Log::info('Update Lost Item Request', [
+                'id' => $id,
+                'auth_id' => Auth::id(),
+                'item_exists' => !!$lostItem,
+                'item_user_id' => $lostItem?->user_id,
+                'status' => $request->status ?? null,
+                'all_request_data' => $request->all()
+            ]);
+            
+            if (!$lostItem) {
+                return response()->json(['error' => 'Item not found'], 404);
+            }
+            
+            // Allow the item owner or anyone marking it as received to update the status
+            if ($request->has('status') && $request->status === 'received') {
+                // Anyone can mark an item as received
+                $lostItem->status = $request->status;
+                $lostItem->save();
+                \Log::info('Item status updated to received', ['id' => $id, 'updated_by' => Auth::id()]);
+                return response()->json($lostItem, 200);
+            } elseif ($lostItem->user_id === Auth::id() && $request->has('status')) {
+                // Only owner can update other statuses
+                $lostItem->status = $request->status;
+                $lostItem->save();
+                \Log::info('Item status updated', ['id' => $id, 'new_status' => $request->status]);
+                return response()->json($lostItem, 200);
+            } else {
+                \Log::warning('Unauthorized update attempt', [
+                    'item_id' => $id,
+                    'item_user_id' => $lostItem->user_id,
+                    'auth_id' => Auth::id(),
+                    'status_value' => $request->status,
+                    'has_status' => $request->has('status')
+                ]);
+                return response()->json(['error' => 'You do not own this item'], 403);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error updating lost item', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Failed to update item', 'message' => $e->getMessage()], 500);
         }
-        
-        // Allow the item owner or anyone marking it as received to update the status
-        if ($request->has('status') && $request->status === 'received') {
-            // Anyone can mark an item as received
-            $lostItem->status = $request->status;
-            $lostItem->save();
-            \Log::info('Item status updated to received', ['id' => $id, 'updated_by' => Auth::id()]);
-        } elseif ($lostItem->user_id === Auth::id() && $request->has('status')) {
-            // Only owner can update other statuses
-            $lostItem->status = $request->status;
-            $lostItem->save();
-            \Log::info('Item status updated', ['id' => $id, 'new_status' => $request->status]);
-        } else {
-            return response()->json(['error' => 'You do not own this item'], 403);
-        }
-
-        return response()->json($lostItem);
     }
 }

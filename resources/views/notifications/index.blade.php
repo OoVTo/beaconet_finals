@@ -230,10 +230,14 @@
             .then(r => {
                 console.log('Response status:', r.status);
                 if (!r.ok) {
-                    return r.json().then(err => {
-                        throw new Error(err.error || `Server error ${r.status}`);
-                    }).catch(e => {
-                        throw new Error(`Failed to update item (${r.status})`);
+                    return r.text().then(text => {
+                        console.log('Response text:', text);
+                        try {
+                            const err = JSON.parse(text);
+                            throw new Error(err.error || `Server error ${r.status}`);
+                        } catch (e) {
+                            throw new Error(`Server error ${r.status}: ${text}`);
+                        }
                     });
                 }
                 return r.json();
