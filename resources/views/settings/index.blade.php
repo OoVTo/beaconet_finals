@@ -25,7 +25,7 @@
         }
         body { font-family: Arial; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; }
         .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h2 { display: flex; gap: 10px; align-items: center; }
+        .navbar h2 { display: flex; gap: 10px; align-items: center; margin: 0; white-space: nowrap; }
         .navbar a { color: white; text-decoration: none; margin-right: 20px; transition: opacity 0.3s; }
         .navbar a:hover { opacity: 0.8; }
         .navbar button { background: none; border: none; color: white; cursor: pointer; transition: opacity 0.3s; }

@@ -80,7 +80,7 @@ class LostItemController extends Controller
     public function update($id, Request $request)
     {
         try {
-            $lostItem = LostItem::find($id);
+            $lostItem = LostItem::with('user')->find($id);
             
             \Log::info('Update Lost Item Request', [
                 'id' => $id,
@@ -99,15 +99,23 @@ class LostItemController extends Controller
             if ($request->has('status') && $request->status === 'received') {
                 // Anyone can mark an item as received
                 $lostItem->status = $request->status;
-                $lostItem->save();
-                \Log::info('Item status updated to received', ['id' => $id, 'updated_by' => Auth::id()]);
-                return response()->json($lostItem, 200);
+                $saved = $lostItem->save();
+                \Log::info('Item status updated to received', [
+                    'id' => $id, 
+                    'updated_by' => Auth::id(),
+                    'save_result' => $saved
+                ]);
+                return response()->json($lostItem->toArray(), 200);
             } elseif ($lostItem->user_id === Auth::id() && $request->has('status')) {
                 // Only owner can update other statuses
                 $lostItem->status = $request->status;
-                $lostItem->save();
-                \Log::info('Item status updated', ['id' => $id, 'new_status' => $request->status]);
-                return response()->json($lostItem, 200);
+                $saved = $lostItem->save();
+                \Log::info('Item status updated', [
+                    'id' => $id, 
+                    'new_status' => $request->status,
+                    'save_result' => $saved
+                ]);
+                return response()->json($lostItem->toArray(), 200);
             } else {
                 \Log::warning('Unauthorized update attempt', [
                     'item_id' => $id,

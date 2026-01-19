@@ -25,7 +25,7 @@
         }
         body { font-family: Arial; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; }
         .navbar { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h2 { display: flex; gap: 10px; align-items: center; }
+        .navbar h2 { display: flex; gap: 10px; align-items: center; margin: 0; white-space: nowrap; }
         .navbar a, .navbar button { color: white; text-decoration: none; cursor: pointer; border: none; background: none; font-size: 16px; transition: opacity 0.3s; margin-left: 20px; display: flex; gap: 8px; align-items: center; }
         .navbar a:hover, .navbar button:hover { opacity: 0.8; }
         .theme-toggle { background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
