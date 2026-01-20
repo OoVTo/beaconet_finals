@@ -117,7 +117,7 @@ php artisan serve
 POST_ITEM {
   ✏️  title: "Your Item Name"
   📝  description: "Detailed description"
-  📸  image: "Optional photo upload"
+  📸  image: "Photo upload"
   📍  coordinates: "Auto-captured from map"
   🏷️  status: ["lost", "found", "resolved"]
 }
